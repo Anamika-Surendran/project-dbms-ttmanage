@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty - Timetable Viewer</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@1"></script>
+</head>
+<body>
+    <header>
+        <h1>Faculty Portal</h1>
+        <div><a href="index.html" style="color:white; text-decoration:none;">&larr; Back to Home</a></div>
+    </header>
+    <main>
+        <section class="card">
+            <h2>Select Faculty</h2>
+            <div class="form-group">
+                <select id="faculty-select">
+                    <option value="">Loading faculty...</option>
+                </select>
+            </div>
+        </section>
+        
+        <section class="card">
+            <h2>Your Timetable</h2>
+            <div class="table-responsive">
+                <table id="timetable-display">
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Batch</th>
+                            <th>Classroom</th>
+                            <th>Timeslot</th>
+                        </tr>
+                    </thead>
+                    <tbody id="timetable-body">
+                        <tr><td colspan="4" style="text-align:center;">Select your name to load timetable</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+    <script>
+        const supabaseUrl = "https://npbwwbxggvlqhvslxzex.supabase.co";
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wYnd3YnhnZ3ZscWh2c2x4emV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyODk1ODEsImV4cCI6MjA5MDg2NTU4MX0.gaBsE7SBIT_kipbGW2to9SjGBxGm7kAATN7xa1j6zoI";
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const facultySel = document.getElementById('faculty-select');
+            
+            // Load all faculty
+            const { data, error } = await supabaseClient.from('faculty').select('*');
+            if (data) {
+                facultySel.innerHTML = '<option value="">-- Select Faculty --</option>';
+                data.forEach(f => {
+                    facultySel.appendChild(new Option(f.fname + " " + f.lname, f.faculty_id));
+                });
+            }
+
+            facultySel.addEventListener('change', async (e) => {
+                const fid = e.target.value;
+                const tbody = document.getElementById('timetable-body');
+                if (!fid) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Select your name to load timetable</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Loading...</td></tr>';
+                const { data: tbData, error: tbErr } = await supabaseClient.from('timetable_full_view').select('*').eq('faculty_id', fid);
+                
+                if (tbErr) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">Error loading timetable.</td></tr>';
+                    return;
+                }
+                
+                if (!tbData || tbData.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No scheduled classes found.</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = '';
+                tbData.forEach(entry => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${entry.subject_name || 'N/A'}</td>
+                        <td>${entry.batch_name || 'N/A'}</td>
+                        <td>${entry.room_no || 'N/A'}</td>
+                        <td>${entry.day || ''} ${entry.start_time || ''}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

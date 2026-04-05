@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Timetable Management System</title>
+    <!-- Basic styling (we will expand this in Step 2) -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Load Supabase from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@1"></script>
+</head>
+
+<body>
+    <header>
+        <h1>Admin Control Panel</h1>
+        <div><a href="index.html" style="color:white; text-decoration:none;">&larr; Back to Home</a></div>
+        <div id="connection-status">Testing Database Connection...</div>
+    </header>
+
+    <main>
+        <!-- Step 2: Form to Add Timetable Entry -->
+        <section class="card" id="form-section">
+            <h2>Add New Entry</h2>
+            <form id="timetable-form">
+
+                <div class="form-group">
+                    <label for="department">Department</label>
+                    <select id="department" name="department" required>
+                        <option value="">Loading departments...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="batch">Batch</label>
+                    <select id="batch" name="batch" required>
+                        <option value="">Loading batches...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="subject">Subject</label>
+                    <select id="subject" name="subject" required>
+                        <option value="">Loading subjects...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="faculty">Faculty</label>
+                    <select id="faculty" name="faculty" required>
+                        <option value="">Loading faculty...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="classroom">Classroom</label>
+                    <select id="classroom" name="classroom" required>
+                        <option value="">Loading classrooms...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="timeslot">Timeslot</label>
+                    <select id="timeslot" name="timeslot" required>
+                        <option value="">Loading timeslots...</option>
+                    </select>
+                </div>
+
+                <div id="form-message"></div>
+
+                <button type="submit" class="btn-primary">Add Entry</button>
+            </form>
+        </section>
+
+        <!-- Step 3: Display Timetable Entries -->
+        <section class="card" id="display-section">
+            <h2>Current Timetable</h2>
+            <div class="table-responsive">
+                <table id="timetable-display">
+                    <thead>
+                        <tr>
+                            <th>Department</th>
+                            <th>Batch</th>
+                            <th>Subject</th>
+                            <th>Faculty</th>
+                            <th>Classroom</th>
+                            <th>Timeslot</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="timetable-body">
+                        <tr>
+                            <td colspan="7" style="text-align:center;">Loading timetable...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Load our application logic -->
+    <script src="app.js"></script>
+</body>
+
+</html>

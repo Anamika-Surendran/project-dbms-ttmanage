@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student - Timetable Viewer</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@1"></script>
+</head>
+<body>
+    <header>
+        <h1>Student Portal</h1>
+        <div><a href="index.html" style="color:white; text-decoration:none;">&larr; Back to Home</a></div>
+    </header>
+    <main>
+        <section class="card">
+        <section class="card">
+            <h2>Select Filters</h2>
+            <div class="form-group">
+                <select id="department-select">
+                    <option value="">Loading departments...</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin-top: 15px;">
+                <select id="batch-select">
+                    <option value="">Select a department first...</option>
+                </select>
+            </div>
+        </section>
+        
+        <section class="card">
+            <h2>Your Timetable</h2>
+            <div class="table-responsive">
+                <table id="timetable-display">
+                    <thead>
+                        <tr>
+                            <th>Department</th>
+                            <th>Subject</th>
+                            <th>Faculty</th>
+                            <th>Classroom</th>
+                            <th>Timeslot</th>
+                        </tr>
+                    </thead>
+                    <tbody id="timetable-body">
+                        <tr><td colspan="5" style="text-align:center;">Select your batch to load timetable</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+    <script>
+        const supabaseUrl = "https://npbwwbxggvlqhvslxzex.supabase.co";
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wYnd3YnhnZ3ZscWh2c2x4emV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyODk1ODEsImV4cCI6MjA5MDg2NTU4MX0.gaBsE7SBIT_kipbGW2to9SjGBxGm7kAATN7xa1j6zoI";
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const deptSel = document.getElementById('department-select');
+            const batchSel = document.getElementById('batch-select');
+            
+            // Load all departments
+            const { data: depts } = await supabaseClient.from('department').select('*');
+            if (depts) {
+                deptSel.innerHTML = '<option value="">-- Select Department --</option>';
+                depts.forEach(d => {
+                    deptSel.appendChild(new Option(d.dept_name, d.dept_id));
+                });
+            }
+
+            deptSel.addEventListener('change', async (e) => {
+                const did = e.target.value;
+                batchSel.innerHTML = '<option value="">Select a department first...</option>';
+                const tbody = document.getElementById('timetable-body');
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Select your batch to load timetable</td></tr>';
+                
+                if (!did) return;
+                
+                batchSel.innerHTML = '<option value="">Loading batches...</option>';
+                const { data: batches } = await supabaseClient.from('batch').select('*').eq('dept_id', did);
+                if (batches) {
+                    batchSel.innerHTML = '<option value="">-- Select Batch --</option>';
+                    batches.forEach(b => {
+                        batchSel.appendChild(new Option(b.batch_name, b.batch_id));
+                    });
+                }
+            });
+
+            batchSel.addEventListener('change', async (e) => {
+                const bid = e.target.value;
+                const tbody = document.getElementById('timetable-body');
+                if (!bid) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Select your batch to load timetable</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Loading...</td></tr>';
+                const { data: tbData, error: tbErr } = await supabaseClient.from('timetable_full_view').select('*').eq('batch_id', bid);
+                
+                if (tbErr) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Error loading timetable.</td></tr>';
+                    return;
+                }
+                
+                if (!tbData || tbData.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No scheduled classes found.</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = '';
+                tbData.forEach(entry => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${entry.dept_name || 'N/A'}</td>
+                        <td>${entry.subject_name || 'N/A'}</td>
+                        <td>${entry.faculty_name || 'N/A'}</td>
+                        <td>${entry.room_no || 'N/A'}</td>
+                        <td>${entry.day || ''} ${entry.start_time || ''}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
