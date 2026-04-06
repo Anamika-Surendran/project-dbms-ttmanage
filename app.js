@@ -1,10 +1,5 @@
-// Step 1: Connect to Supabase
-console.log("APP JS LOADED");
 
-// ✅ Your Supabase Project URL
-const supabaseUrl = "https://npbwwbxggvlqhvslxzex.supabase.co";
-
-// 🔥 IMPORTANT: Paste your REAL anon key below (from Supabase)
+const supabaseUrl = "https://npbwwbxggvlqhvslxzex.supabase.co"
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wYnd3YnhnZ3ZscWh2c2x4emV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyODk1ODEsImV4cCI6MjA5MDg2NTU4MX0.gaBsE7SBIT_kipbGW2to9SjGBxGm7kAATN7xa1j6zoI";
 
 console.log("Initializing Supabase Client...");
@@ -134,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const batchDropdown = document.getElementById('batch');
     const subjectDropdown = document.getElementById('subject');
     const facultyDropdown = document.getElementById('faculty');
-    
+
     if (batchDropdown) batchDropdown.innerHTML = '<option value="">Select a department first...</option>';
     if (subjectDropdown) subjectDropdown.innerHTML = '<option value="">Select a department first...</option>';
     if (facultyDropdown) facultyDropdown.innerHTML = '<option value="">Select a department first...</option>';
@@ -158,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
             facultyDropdown.innerHTML = '';
             facultyDropdown.options.length = 0;
             facultyDropdown.dataset.loaded = "false";
-            
+
             if (batchDropdown) {
                 batchDropdown.innerHTML = '';
                 batchDropdown.options.length = 0;
@@ -173,12 +168,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (selectedDeptId) {
                 facultyDropdown.appendChild(new Option("Loading faculty...", ""));
                 fetchAndPopulateDropdown('faculty', 'faculty', 'faculty_id', (row) => `${row.fname} ${row.lname}`, { col: 'dept_id', val: selectedDeptId });
-                
+
                 if (batchDropdown) {
                     batchDropdown.appendChild(new Option("Loading batches...", ""));
                     fetchAndPopulateDropdown('batch', 'batch', 'batch_id', (row) => row.batch_name, { col: 'dept_id', val: selectedDeptId });
                 }
-                
+
                 if (subjectDropdown) {
                     subjectDropdown.appendChild(new Option("Loading subjects...", ""));
                     fetchAndPopulateDropdown('subject', 'subject', 'subject_id', (row) => row.subject_name, { col: 'dept_id', val: selectedDeptId });
@@ -306,7 +301,7 @@ async function deleteTimetableEntry(id) {
     try {
         const { error } = await supabaseClient.from('timetable').delete().eq('tt_id', id);
         if (error) throw error;
-        
+
         // Refresh timetable without reloading page
         fetchAndDisplayTimetable();
     } catch (err) {
